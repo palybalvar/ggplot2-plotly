@@ -1,0 +1,188 @@
+---
+title: "Gráfico: ggplot2 y plotly"
+format: html
+editor: visual
+toc: true
+toc-location: right
+---
+
+## Carga de bibliotecas
+
+```{r}
+#| label: carga-biblos
+#| warning: false
+#| message: false
+
+# Carga conjunta de Tidyverse 
+# (incluye ggplot2, dplyr, readr y otros)
+library(tidyverse)
+library(plotly)
+library(DT)
+library(scales)
+library(palmerpenguins)
+```
+
+## Carga datos
+
+```{r}
+#| label: carga-datos
+#| warning: false
+#| message: false
+
+# Carga de los datos de países
+paises <-
+  read_csv(
+    "https://raw.githubusercontent.com/pf0953-programacionr/2024-ii/refs/heads/main/datos/natural-earth/paises-join-esperanzavida.csv"
+  )
+```
+## Países de europa
+```{r}
+#| label: tabla-paises
+# Tabla de datos de paises
+
+paises |>
+  filter(CONTINENT=="Europe")|>
+  arrange(NAME)|>
+  datatable(
+    options = list(
+      pageLength = 10,
+      language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+    )
+  )
+
+```
+
+
+
+## Países del este y con población mayor a 10 millones de habitantes, ordenados descendentemente por población
+
+```{r}
+#| label: tabla-paises-subregion
+# Tabla de datos de paises
+
+paises |>
+  filter(SUBREGION== "Eastern Europe" & POP_EST >= 10000000)|>
+  select(ADM0_ISO, NAME, POP_EST)|>
+  arrange(desc(POP_EST))|>
+  datatable(
+    options = list(
+      pageLength = 10,
+      language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+    )
+  )
+
+```
+
+## Gráficos bases con ggplot2
+
+
+### Grafico de dispersión de PIB per cápita vs esperanza de vida al nacer
+
+```{r}
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+#| label: ggplot2-1
+#| warning: false
+#| message: false
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY, color = INCOME_GRP)) +
+  geom_point() +
+  scale_x_continuous(labels = comma, limits = c(0, NA))
+```
+
+### Consulta de países con mayor espectativa de vida con mayor PIB per cápita
+```{r}
+# País con mayor PIB per cápita
+#| label: ggplot2-2
+#| warning: false
+#| message: false
+paises |>
+  select(NAME, GDP_PC, LIFE_EXPECTANCY)|>
+  filter(GDP_PC >= 175000)
+
+```
+
+
+### Gráfico que muestra espectativa de vida con color y formas por continente 
+```{r}
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+#| label: ggplot2-3
+#| warning: false
+#| message: false
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY, color = CONTINENT, shape = CONTINENT)) +
+  geom_point() +
+  scale_x_continuous(labels = comma, limits = c(0, NA))
+```
+
+## Países con formas distintas y colores definidos
+```{r}
+#| label: ggplot2-4
+#| warning: false
+#| message: false
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# con formas y colores correspondientes al continente
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY, shape = CONTINENT, color = CONTINENT)) +
+  geom_point() +
+  scale_x_continuous(labels = comma, limits = c(0, NA)) +
+  scale_shape_manual(values = c(0, 1, 2, 3, 4, 5, 6, 7)) +
+  scale_color_manual(values = c("red", "blue", "green", "purple", "orange", "brown", "pink", "yellow"))
+```
+
+## Gráfico que muestra el tamaño de los países
+```{r}
+#| label: ggplot2-5
+#| warning: false
+#| message: false
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# con tamaño de puntos correspondiente a la población
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY, size = POP_EST, color = CONTINENT)) +
+  geom_point() +
+  scale_size_continuous(labels = comma) +
+  scale_x_continuous(labels = comma, limits = c(0, NA))
+```
+
+## Capas adicionales
+```{r}
+#| label: ggplot2-6
+#| warning: false
+#| message: false
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# + curva de tendencia
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY)) +
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  scale_x_continuous(labels = comma, limits = c(0, NA))
+```
+
+## Gráfico de pingüinos: Muestra peso, especie, largo de pico y largo de ala 
+
+```{r}
+#| label: ggplot2-7
+#| warning: false
+#| message: false
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# en África y Europa coloreado por continente
+# + curva de tendencia
+penguins |>
+  ggplot(aes(x = body_mass_g, y = bill_length_mm, color = species, size = flipper_length_mm)) +
+  geom_point()
+```
+# Páneles /Facets
+
+## Páneles de países esperanza de vida
+```{r}
+#| label: ggplot2-8
+#| warning: false
+#| message: false
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# + paneles por continente
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY)) +
+  geom_point() +
+  facet_wrap(~ SUBREGION, nrow = 6) +
+  scale_x_continuous(labels = comma, limits = c(0, NA))
+```
+
