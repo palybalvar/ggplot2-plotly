@@ -212,7 +212,6 @@ paises |>
   labs(subtitle = "Datos de África y Europa", 
        caption = "Fuentes: Natural Earth y Banco Mundial",
        color = "Continente")
-  theme_economist()
 ```
 ### Colores
 ```{r}
@@ -272,7 +271,8 @@ ggplotly(grafico_ggplot2, tooltip = "text") |>
 
 ```{r}
 #| label: hist-1
-
+#| warning: false
+#| message: false
 # Histograma ggplot2 de distribución del PIB per cápita
 histograma_ggplot2 <- 
   paises |>
